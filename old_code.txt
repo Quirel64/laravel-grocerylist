@@ -1,0 +1,152 @@
+create.php
+
+
+<form action="{{ route('items.store') }}" method="POST">
+    @csrf
+    <label for="name">Naam:</label>
+    <input type="text" id="name" name="name" required>
+    <br>
+    <label for="description">Beschrijving:</label>
+    <textarea id="description" name="description"></textarea>
+    <br>
+    <label for="category">Categorie:</label>
+    <br>
+<select name="category_id[]" id="category" required multiple >
+    @foreach($categories as $category)
+        <option value="{{ $category->id }}">{{ $category->name }}</option>
+    @endforeach
+</select>
+
+<form action="/image-upload" method="POST" enctype="multipart/form-data">
+    @csrf
+    <input type="file" name="image">
+    <button type="submit">Upload</button>
+</form>
+
+    <br>
+   <button type="submit">Opslaan</button>
+
+ 
+</form>
+
+
+itemcontroller.php
+
+ /*/ public function edit($id) {
+      $categories = Category::all();
+       
+        $item = Item::find($id);
+        $item->categories()->attach($item['category_id']);
+        return view('items.edit', compact('item', 'categories'));
+         
+    } /*/
+
+
+     /*/  public function store(StoreItemRequest $request) {
+    
+
+        $validated = $request->validated();
+
+        $validated['user_id'] = Auth::id();
+        // Maakt een nieuw item aan met de gevalideerde gegevens
+        Item::create($validated);
+       
+       
+        return redirect()->route('items.index');
+    }/*/
+
+
+        /*/
+public function update(UpdateItemRequest $request, Item $item) {
+        
+        $validated = $request->validated();
+    
+        // Werkt het item bij met de gevalideerde gegevens
+        $item->update($validated);
+    
+        return redirect()->route('items.index');
+    }
+    /*/
+
+
+
+
+
+  /**
+     * Store a newly created resource in storage.
+     */
+
+public function store(StoreItemRequest $request) {
+    $validated = $request->validated();
+    $validated['user_id'] = Auth::id();
+
+    // Create the item without category_id
+    $item = Item::create([
+        'name' => $validated['name'],
+        'description' => $validated['description'] ?? null,
+        'user_id' => $validated['user_id'],
+    ]);
+
+    // Attach the selected categories
+    $item->categories()->attach($validated['category_id']);
+
+    return redirect()->route('items.index');
+}
+
+
+   
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+public function edit($id) {
+    $categories = Category::all();
+    $item = Item::with('categories')->findOrFail($id); // eager load categories
+
+    return view('items.edit', compact('item', 'categories'));
+}
+
+
+    /**
+     * Update the specified resource in storage.
+     */
+public function update(UpdateItemRequest $request, Item $item) {
+    $validated = $request->validated();
+
+    // Update the item fields (excluding category_id)
+    $item->update([
+        'name' => $validated['name'],
+        'description' => $validated['description'] ?? null,
+    ]);
+
+    // Sync the categories via the pivot table
+    $item->categories()->sync($validated['category_id']);
+
+    return redirect()->route('items.index');
+}
+
+
+
+    web.php
+
+    // middleware security
+/*/Route::middleware('auth')->get('/dashboard', function () {
+    return view('items.dashboard');
+});/*/
+
+
+
+
+StoreItemRequest.php
+
+ /* public function rules(): array
+    {
+        return [
+         'name' => 'required|max:255',
+        'description' => 'nullable',
+        'category_id' => 'required|exists:categories,id',
+        
+        
+        ];
+        
+    }/*/
