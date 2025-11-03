@@ -150,3 +150,81 @@ StoreItemRequest.php
         ];
         
     }/*/
+
+
+
+
+    public function index(Request $request)
+{
+    $categories = Category::all();
+
+    $query = Item::where('user_id', Auth::id());
+
+    // 🔍 Search filter
+    if ($request->filled('search')) {
+        $searchTerm = $request->input('search');
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('name', 'like', "%{$searchTerm}%")
+              ->orWhere('content', 'like', "%{$searchTerm}%");
+        });
+    }
+
+    // 🗂️ Filter by categories
+    if ($request->filled('category_id')) {
+        $query->whereHas('categories', function ($q) use ($request) {
+            $q->whereIn('categories.id', $request->category_id);
+        });
+    }
+
+    // 🔃 Sorting
+    if ($request->filled('sort_by') && in_array($request->sort_by, ['name','created_at','updated_at'])) {
+        $query->orderBy($request->sort_by, $request->order === 'desc' ? 'desc' : 'asc');
+    } else {
+        $query->orderBy('created_at', 'desc');
+    }
+
+    $items = $query->get();
+
+    return view('items.dashboard', compact('items', 'categories'));
+}
+
+
+
+
+
+
+ public function index(Request $request)
+{
+    $categories = Category::all();
+
+    $query = Item::where('user_id', Auth::id());
+
+    // Filter op categorieën
+    if ($request->filled('category_id')) {
+        $query->whereHas('categories', function ($q) use ($request) {
+            $q->whereIn('categories.id', $request->category_id);
+        });
+    }
+
+    // Sorteren
+    if ($request->filled('sort_by') && in_array($request->sort_by, ['name','created_at','updated_at'])) {
+        $query->orderBy($request->sort_by, $request->order === 'desc' ? 'desc' : 'asc');
+    } else {
+        $query->orderBy('created_at', 'desc');
+    }
+
+    $items = $query->get();
+
+    return view('items.dashboard', compact('items', 'categories'));
+}
+
+.env
+
+MAIL_MAILER=log
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"

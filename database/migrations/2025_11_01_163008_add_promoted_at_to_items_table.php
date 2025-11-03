@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
 {
     Schema::table('items', function (Blueprint $table) {
-        $table->boolean('premium')->default(false);
+        $table->timestamp('promoted_at')->nullable()->after('created_at');
     });
 }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {
-         $table->dropColumn('premium');
+            //
         });
     }
 };

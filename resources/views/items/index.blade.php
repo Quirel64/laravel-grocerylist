@@ -5,6 +5,7 @@
 
 @section('content')
 
+
 <h1>Artikelen</h1>
 
 <form action="{{ route('items.index') }}" method="GET">
@@ -17,14 +18,33 @@
     <button type="submit">Filter</button>
 </form>
 
+
+<form action="{{ route('items.index') }}" method="GET">
+    <h2>zoek een item</h2>
+    <select name="item_id[]" id="item" multiple>
+        @foreach($allItems as $item)
+            <option value="{{ $item->id }}" {{ (collect(request()->input('item_id'))->contains($item->id)) ? 'selected' : '' }}>
+                {{ $item->name }}
+            </option>
+        @endforeach
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+
 <table>
     <thead>
         <tr>
+            <th>promoted</th>
+            <th>premium</th>
+            <th>imgage</th>
             <th>Naam artikel</th>
+            <th>beschrijving</th>
             <th>categorie</th>
             <th>datum toevoeging</th>
-            <th>datum bijwerking</th>
-            <th>Acties</th>
+            
+            <th>commentaar toevoegen</th>
+            <th>gemaakt door</th>
         </tr>
     </thead>
    <tbody>
@@ -33,10 +53,16 @@
         <tr>
             {{-- Afbeeldingskolom met check op bestaan --}}
           
+            @if($item->promoted_at)
+    <td style="color: green;">Promoted</td>
+    @else <td>standaard</td>
+@endif
 
+@if($item->premium)
+<td style="color: gold;"> Premium</td>
+@else <td>openbaar</td>
+@endif
             <td>
-                  @if($item->premium)
-    <span style="color: gold;"> Premium</span>
                 @if($item->image_path && file_exists(public_path('images/' . $item->image_path)))
                     <img src="{{ asset('images/' . $item->image_path) }}"
                          alt="{{ $item->name }}"
@@ -45,7 +71,7 @@
                     <em>Geen afbeelding</em>
                 @endif
             </td>
-@endif
+
 
 
             {{-- Naam --}}
@@ -70,13 +96,21 @@
 
             {{-- Acties: bewerken + verwijderen --}}
             <td>
-               
-
                <a href="{{ route('items.comments', ['id' => $item->id]) }}">Comment</a>
+</td>
+<td>
+    @if($item->user)
+        <a href="{{ route('users.show', $item->user->id) }}">
+            {{ $item->user->name }}
+        </a>
+    @else
+        Unknown
+    @endif
+</td>
 
 
-              
-            </td>
+
+
         </tr>
     @empty
         <tr>
@@ -88,15 +122,19 @@
     
     </tbody>
 </table>
+<div style= "width:100px; height:10px">
+{{ $items->appends(request()->query())->links() }}
 
+</div>
 @endsection
 
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
     window.onload = function() {
-        const element = document.getElementById('category');
-        const choices = new Choices(element, {
-            removeItemButton: true,
-        });
+        const categoryElement = document.getElementById('category');
+        const itemElement = document.getElementById('item');
+
+        new Choices(categoryElement, { removeItemButton: true });
+        new Choices(itemElement, { removeItemButton: true });
     }
 </script>

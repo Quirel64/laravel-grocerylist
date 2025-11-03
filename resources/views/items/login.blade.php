@@ -3,6 +3,11 @@
 @section('content')
 
 
+<form method="POST" action="{{ route('logout') }}">
+    @csrf
+    <button type="submit" class="btn btn-link">Logout</button>
+</form>
+
 <h1>login page</h1>
 
 <h2>what does logging in do?</h2>
@@ -21,6 +26,9 @@
 
     <button type="submit">Inloggen</button>
 </form>
+
+
+
 @if ($errors->any())
     <div>
         <ul>

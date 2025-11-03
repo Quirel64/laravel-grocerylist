@@ -17,6 +17,9 @@
     </div>
 @endif
 
+
+<a href=""></a>
+
 <p>Welkom, {{ Auth::user()->name ?? 'gast' }}!</p>
 
 {{-- FILTER FORM --}}
@@ -33,29 +36,37 @@
     <button type="submit">Filter</button>
 </form>
 
-{{-- ITEM TABEL --}}
 <table>
     <thead>
         <tr>
-            <th>Afbeelding</th>
-            <th>Naam</th>
-            <th>Inhoud</th>
-            <th>Categorie</th>
-            <th>Datum toevoeging</th>
-            <th>Acties</th>
+            <th>promoted</th>
+            <th>premium</th>
+            <th>imgage</th>
+            <th>Naam artikel</th>
+            <th>beschrijving</th>
+            <th>categorie</th>
+            <th>datum toevoeging</th>
+            
+            <th>commentaar toevoegen</th>
+            <th>gemaakt door</th>
         </tr>
     </thead>
-    <tbody>
+   <tbody>
     @forelse($items as $item)
-     
-  
+    
         <tr>
             {{-- Afbeeldingskolom met check op bestaan --}}
+          
+            @if($item->promoted_at)
+    <td style="color: green;">Promoted</td>
+    @else <td>standaard</td>
+@endif
+
+@if($item->premium)
+<td style="color: gold;"> Premium</td>
+@else <td>openbaar</td>
+@endif
             <td>
-                 @if($item->premium)
-    <span style="color: gold;"> Premium</span>
-    
-    
                 @if($item->image_path && file_exists(public_path('images/' . $item->image_path)))
                     <img src="{{ asset('images/' . $item->image_path) }}"
                          alt="{{ $item->name }}"
@@ -64,7 +75,7 @@
                     <em>Geen afbeelding</em>
                 @endif
             </td>
-             @endif
+
 
 
             {{-- Naam --}}
@@ -89,17 +100,24 @@
 
             {{-- Acties: bewerken + verwijderen --}}
             <td>
-                <a href="{{ route('items.edit', $item->id) }}">Bewerken</a> |
-                <a href="{{ route('items.comments', $item->id) }}">comment</a> |
-                <form action="{{ route('items.destroy', $item->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            onclick="return confirm('Weet je zeker dat je dit item wilt verwijderen?')">
-                        Verwijderen
-                    </button>
-                </form>
-            </td>
+               <a href="{{ route('items.comments', ['id' => $item->id]) }}">Comment</a>
+           <td>
+    @if($item->user)
+        <a href="{{ route('users.show', $item->user->id) }}">
+            {{ $item->user->name }}
+        </a>
+    @else
+        Unknown
+    @endif
+</td>
+
+
+<td><form action="{{ route('items.promote', $item->id) }}" method="POST">
+    @csrf
+    <button type="submit">Promote to Top</button>
+</form>
+</td>
+
         </tr>
     @empty
         <tr>
@@ -111,7 +129,6 @@
     
     </tbody>
 </table>
-
 
 
 @endsection

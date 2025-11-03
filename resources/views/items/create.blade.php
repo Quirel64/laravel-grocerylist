@@ -17,11 +17,14 @@
     <textarea id="description" name="description"></textarea>
 
     <label for="category">Categorie:</label>
-    <select name="category_id[]" id="category" required multiple>
-        @foreach($categories as $category)
-            <option value="{{ $category->id }}">{{ $category->name }}</option>
-        @endforeach
-    </select>
+    <select name="category_id[]" id="category" multiple>
+    @foreach($categories as $category)
+        <option value="{{ $category->id }}" {{ in_array($category->id, old('category_id', [])) ? 'selected' : '' }}>
+            {{ $category->name }}
+        </option>
+    @endforeach
+</select>
+
 
     <label for="image">Afbeelding:</label>
     <input type="file" name="image" id="image" accept="image/*">

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Item extends Model
 {
-    protected $fillable = ['name', 'description', 'category_id', 'user_id', 'image_path', 'premium'];
+    protected $fillable = ['name', 'description', 'category_id', 'user_id', 'image_path', 'premium', 'promoted_at'];
 
     use HasFactory;
 
@@ -21,6 +21,11 @@ class Item extends Model
 public function comments()
 {
     return $this->hasMany(Comment::class);
+}
+
+public function user()
+{
+    return $this->belongsTo(User::class);
 }
 
 }

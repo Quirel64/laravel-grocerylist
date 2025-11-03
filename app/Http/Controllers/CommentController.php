@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\User;
 
 class CommentController extends Controller
 {
@@ -13,8 +14,9 @@ class CommentController extends Controller
 
 public function create($id)
 {
-    $item = Item::with('comments.user')->findOrFail($id);
-    return view('items.comments', compact('item'));
+  $item = Item::with(['user', 'comments.user'])->findOrFail($id);
+    $user = User::find($id);
+    return view('items.comments', compact('item', 'user'));
 }
 
 
